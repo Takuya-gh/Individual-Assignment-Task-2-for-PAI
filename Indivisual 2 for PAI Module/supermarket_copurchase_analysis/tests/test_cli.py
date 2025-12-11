@@ -67,5 +67,57 @@ class TestCLILoadCommand(unittest.TestCase):
         finally:
             sys.stdout = old_stdout
 
+
+class TestCLIQueryCommand(unittest.TestCase):
+    """Test suite for query command."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        # Get the path to the sample CSV file
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        self.sample_csv_path = os.path.join(test_dir, "sample_data.csv")
+
+    def test_query_command_with_item_name(self):
+        """Test that query command can find co-purchases for an item."""
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        sys.argv = ['cli.py', 'query', self.sample_csv_path, 'bread']
+        try:
+            main()
+            output = sys.stdout.getvalue()
+            # Should show co-purchases for bread
+            self.assertIn('bread', output.lower())
+        finally:
+            sys.stdout = old_stdout
+
+    def test_query_command_shows_copurchased_items(self):
+        """Test that query command shows items co-purchased with target item."""
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        sys.argv = ['cli.py', 'query', self.sample_csv_path, 'bread']
+        try:
+            main()
+            output = sys.stdout.getvalue()
+            # bread is co-purchased with milk, butter, jam in sample data
+            self.assertTrue('milk' in output.lower() or 'butter' in output.lower() or 'jam' in output.lower())
+        finally:
+            sys.stdout = old_stdout
+
+    def test_query_command_with_min_count_filter(self):
+        """Test that query command respects min_count filter."""
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        sys.argv = ['cli.py', 'query', self.sample_csv_path, 'bread', '--min-count', '1']
+        try:
+            main()
+            output = sys.stdout.getvalue()
+            # Should show results with at least 1 co-purchase
+            self.assertIn('bread', output.lower())
+        finally:
+            sys.stdout = old_stdout
+
 if __name__ == '__main__':
     unittest.main()
