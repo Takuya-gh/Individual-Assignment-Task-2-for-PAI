@@ -18,3 +18,14 @@ class CoPurchaseGraph:
     def __init__(self):
         """Initialize an empty co-purchase graph."""
         self.adj = {}
+
+
+    def add_item(self, item):
+        """
+        Ensure the item exists as a node in the graph.
+
+        Args:
+            item (str): The item name to add as a node.
+        """
+        if item not in self.adj:
+            self.adj[item] = {}
