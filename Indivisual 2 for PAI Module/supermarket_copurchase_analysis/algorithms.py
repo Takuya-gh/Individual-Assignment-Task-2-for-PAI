@@ -77,3 +77,20 @@ def get_top_n_bundles(graph, n):
 
     # Return top n
     return bundles[:n]
+
+
+def are_often_copurchased(graph, item_a, item_b, threshold):
+    """
+    Check if two items are often co-purchased (count >= threshold).
+
+    Args:
+        graph (CoPurchaseGraph): The graph.
+        item_a (str): First item name.
+        item_b (str): Second item name.
+        threshold (int): Minimum co-purchase count to be considered "often".
+
+    Returns:
+        bool: True if co-purchase count >= threshold, False otherwise.
+    """
+    count = graph.get_edge_weight(item_a, item_b)
+    return count >= threshold
