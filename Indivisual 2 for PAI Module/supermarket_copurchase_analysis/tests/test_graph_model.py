@@ -142,5 +142,36 @@ class TestGetNeighbors(unittest.TestCase):
         neighbors = graph.get_neighbors("dragonfruit")
         self.assertEqual(neighbors, {})
 
+
+class TestGetEdgeWeight(unittest.TestCase):
+    """Test suite for get_edge_weight method."""
+
+    def test_get_weight_of_existing_edge(self):
+        """Test getting weight of existing edge."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("bread", "milk")
+        graph.add_co_purchase("bread", "milk")
+        weight = graph.get_edge_weight("bread", "milk")
+        self.assertEqual(weight, 2)
+
+    def test_get_weight_of_non_existent_edge(self):
+        """Test getting weight of non-existent edge returns 0."""
+        graph = CoPurchaseGraph()
+        graph.add_item("bread")
+        graph.add_item("milk")
+        weight = graph.get_edge_weight("bread", "milk")
+        self.assertEqual(weight, 0)
+
+    def test_symmetric_weight(self):
+        """Test that weight(A,B) == weight(B,A)."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("eggs", "bacon")
+        graph.add_co_purchase("eggs", "bacon")
+        graph.add_co_purchase("eggs", "bacon")
+        weight_ab = graph.get_edge_weight("eggs", "bacon")
+        weight_ba = graph.get_edge_weight("bacon", "eggs")
+        self.assertEqual(weight_ab, weight_ba)
+        self.assertEqual(weight_ab, 3)
+
 if __name__ == '__main__':
     unittest.main()
