@@ -99,5 +99,73 @@ class TestGetCoPurchasesForItem(unittest.TestCase):
         result = get_co_purchases_for_item(self.graph, "dragonfruit")
         self.assertEqual(result, {})
 
+
+class TestGetTopNBundles(unittest.TestCase):
+    """Test suite for get_top_n_bundles function."""
+
+    def setUp(self):
+        """Set up a sample graph for testing."""
+        self.graph = CoPurchaseGraph()
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")  # weight = 3
+        self.graph.add_co_purchase("bread", "butter")
+        self.graph.add_co_purchase("bread", "butter")  # weight = 2
+        self.graph.add_co_purchase("milk", "butter")  # weight = 1
+        self.graph.add_co_purchase("jam", "honey")
+        self.graph.add_co_purchase("jam", "honey")
+        self.graph.add_co_purchase("jam", "honey")
+        self.graph.add_co_purchase("jam", "honey")  # weight = 4
+
+    def test_get_top_n_bundles_returns_list(self):
+        """Test that get_top_n_bundles returns a list."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        result = get_top_n_bundles(self.graph, n=2)
+        self.assertIsInstance(result, list)
+
+    def test_get_top_2_bundles(self):
+        """Test getting top 2 bundles."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        result = get_top_n_bundles(self.graph, n=2)
+        self.assertEqual(len(result), 2)
+        # First should be (jam, honey) with count 4
+        self.assertEqual(result[0][2], 4)
+        # Second should be (bread, milk) with count 3
+        self.assertEqual(result[1][2], 3)
+
+    def test_bundles_sorted_descending_by_count(self):
+        """Test that bundles are sorted by count descending."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        result = get_top_n_bundles(self.graph, n=10)
+        counts = [bundle[2] for bundle in result]
+        self.assertEqual(counts, sorted(counts, reverse=True))
+
+    def test_each_pair_appears_once(self):
+        """Test that each undirected pair appears only once."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        result = get_top_n_bundles(self.graph, n=10)
+        pairs = [(bundle[0], bundle[1]) for bundle in result]
+        # Check no duplicate pairs (considering undirected)
+        seen = set()
+        for item_a, item_b in pairs:
+            pair = tuple(sorted([item_a, item_b]))
+            self.assertNotIn(pair, seen)
+            seen.add(pair)
+
+    def test_empty_graph_returns_empty_list(self):
+        """Test that empty graph returns empty list."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        empty_graph = CoPurchaseGraph()
+        result = get_top_n_bundles(empty_graph, n=5)
+        self.assertEqual(result, [])
+
+    def test_n_larger_than_edges(self):
+        """Test requesting more bundles than exist."""
+        from supermarket_copurchase_analysis.algorithms import get_top_n_bundles
+        result = get_top_n_bundles(self.graph, n=100)
+        # Should return all 4 edges without error
+        self.assertEqual(len(result), 4)
+
+
 if __name__ == '__main__':
     unittest.main()
