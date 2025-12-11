@@ -56,3 +56,24 @@ class CoPurchaseGraph:
         if item_a not in self.adj[item_b]:
             self.adj[item_b][item_a] = 0
         self.adj[item_b][item_a] += 1
+
+
+    def add_transaction(self, items):
+        """
+        Given a list of items from a single transaction,
+        update all pairwise co-purchase counts in the graph.
+
+        Args:
+            items (list): List of item names in the transaction.
+        """
+        # Convert to set to remove duplicates within the transaction
+        unique_items = list(set(items))
+
+        # Add each item as a node
+        for item in unique_items:
+            self.add_item(item)
+
+        # Add edges for all pairs
+        for i in range(len(unique_items)):
+            for j in range(i + 1, len(unique_items)):
+                self.add_co_purchase(unique_items[i], unique_items[j])
