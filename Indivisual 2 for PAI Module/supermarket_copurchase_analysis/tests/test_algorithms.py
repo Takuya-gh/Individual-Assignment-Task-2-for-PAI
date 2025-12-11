@@ -167,5 +167,69 @@ class TestGetTopNBundles(unittest.TestCase):
         self.assertEqual(len(result), 4)
 
 
+class TestAreOftenCopurchased(unittest.TestCase):
+    """Test suite for are_often_copurchased function."""
+
+    def setUp(self):
+        """Set up a sample graph for testing."""
+        self.graph = CoPurchaseGraph()
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("bread", "milk")  # weight = 5
+        self.graph.add_co_purchase("bread", "butter")
+        self.graph.add_co_purchase("bread", "butter")  # weight = 2
+        self.graph.add_co_purchase("jam", "honey")  # weight = 1
+
+    def test_returns_boolean(self):
+        """Test that are_often_copurchased returns a boolean."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        result = are_often_copurchased(self.graph, "bread", "milk", threshold=3)
+        self.assertIsInstance(result, bool)
+
+    def test_above_threshold_returns_true(self):
+        """Test that items above threshold return True."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        # bread-milk has weight 5, threshold 3
+        result = are_often_copurchased(self.graph, "bread", "milk", threshold=3)
+        self.assertTrue(result)
+
+    def test_below_threshold_returns_false(self):
+        """Test that items below threshold return False."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        # bread-butter has weight 2, threshold 3
+        result = are_often_copurchased(self.graph, "bread", "butter", threshold=3)
+        self.assertFalse(result)
+
+    def test_equal_to_threshold_returns_true(self):
+        """Test that items equal to threshold return True."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        # bread-milk has weight 5, threshold 5
+        result = are_often_copurchased(self.graph, "bread", "milk", threshold=5)
+        self.assertTrue(result)
+
+    def test_non_existent_items_return_false(self):
+        """Test that non-existent items return False."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        result = are_often_copurchased(self.graph, "dragonfruit", "kiwi", threshold=1)
+        self.assertFalse(result)
+
+    def test_no_edge_between_items_returns_false(self):
+        """Test that items with no edge return False."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        # bread and jam have no edge
+        result = are_often_copurchased(self.graph, "bread", "jam", threshold=1)
+        self.assertFalse(result)
+
+    def test_symmetric_check(self):
+        """Test that order of items doesn't matter."""
+        from supermarket_copurchase_analysis.algorithms import are_often_copurchased
+        result1 = are_often_copurchased(self.graph, "bread", "milk", threshold=3)
+        result2 = are_often_copurchased(self.graph, "milk", "bread", threshold=3)
+        self.assertEqual(result1, result2)
+        self.assertTrue(result1)
+
+
 if __name__ == '__main__':
     unittest.main()
