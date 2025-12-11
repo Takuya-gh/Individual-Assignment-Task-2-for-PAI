@@ -77,3 +77,18 @@ class CoPurchaseGraph:
         for i in range(len(unique_items)):
             for j in range(i + 1, len(unique_items)):
                 self.add_co_purchase(unique_items[i], unique_items[j])
+
+
+    def get_neighbors(self, item):
+        """
+        Return a dict of neighbor items and their co-purchase counts.
+
+        Args:
+            item (str): The item name.
+
+        Returns:
+            dict: Dictionary mapping neighbor items to co-purchase counts.
+        """
+        if item in self.adj:
+            return self.adj[item]
+        return {}
