@@ -92,3 +92,20 @@ class CoPurchaseGraph:
         if item in self.adj:
             return self.adj[item]
         return {}
+
+
+    def get_edge_weight(self, item_a, item_b):
+        """
+        Get the co-purchase count for a pair of items.
+        Return 0 if they never co-occurred.
+
+        Args:
+            item_a (str): First item name.
+            item_b (str): Second item name.
+
+        Returns:
+            int: Co-purchase count between the two items.
+        """
+        if item_a in self.adj and item_b in self.adj[item_a]:
+            return self.adj[item_a][item_b]
+        return 0
