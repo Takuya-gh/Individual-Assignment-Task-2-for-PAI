@@ -35,6 +35,14 @@ def main():
     bundles_parser.add_argument('csv_file', help='Path to the CSV file')
     bundles_parser.add_argument('n', type=int, help='Number of top bundles to return')
 
+    # Check command
+    check_parser = subparsers.add_parser('check', help='Check if two items are often co-purchased')
+    check_parser.add_argument('csv_file', help='Path to the CSV file')
+    check_parser.add_argument('item_a', help='First item name')
+    check_parser.add_argument('item_b', help='Second item name')
+    check_parser.add_argument('--threshold', type=int, default=1,
+                             help='Minimum co-purchase count threshold (default: 1)')
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -45,6 +53,8 @@ def main():
         handle_query(args.csv_file, args.item, args.min_count)
     elif args.command == 'bundles':
         handle_bundles(args.csv_file, args.n)
+    elif args.command == 'check':
+        handle_check(args.csv_file, args.item_a, args.item_b, args.threshold)
     else:
         parser.print_help()
 
