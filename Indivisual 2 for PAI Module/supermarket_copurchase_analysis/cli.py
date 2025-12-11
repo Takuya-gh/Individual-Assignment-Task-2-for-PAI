@@ -3,7 +3,9 @@ import argparse
 from supermarket_copurchase_analysis.data_loader import load_transactions_from_csv
 from supermarket_copurchase_analysis.algorithms import (
     build_graph_from_transactions,
-    get_co_purchases_for_item
+    get_co_purchases_for_item,
+    get_top_n_bundles,
+    are_often_copurchased
 )
 
 
@@ -28,6 +30,19 @@ def main():
     query_parser.add_argument('--min-count', type=int, default=1, 
                              help='Minimum co-purchase count (default: 1)')
 
+    # Bundles command
+    bundles_parser = subparsers.add_parser('bundles', help='Find top N co-purchased bundles')
+    bundles_parser.add_argument('csv_file', help='Path to the CSV file')
+    bundles_parser.add_argument('n', type=int, help='Number of top bundles to return')
+
+    # Check command
+    check_parser = subparsers.add_parser('check', help='Check if two items are often co-purchased')
+    check_parser.add_argument('csv_file', help='Path to the CSV file')
+    check_parser.add_argument('item_a', help='First item name')
+    check_parser.add_argument('item_b', help='Second item name')
+    check_parser.add_argument('--threshold', type=int, default=1,
+                             help='Minimum co-purchase count threshold (default: 1)')
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -36,6 +51,10 @@ def main():
         handle_load(args.csv_file)
     elif args.command == 'query':
         handle_query(args.csv_file, args.item, args.min_count)
+    elif args.command == 'bundles':
+        handle_bundles(args.csv_file, args.n)
+    elif args.command == 'check':
+        handle_check(args.csv_file, args.item_a, args.item_b, args.threshold)
     else:
         parser.print_help()
 
@@ -74,7 +93,45 @@ def handle_query(csv_file, item, min_count):
     else:
         for copurchased_item, count in co_purchases.items():
             print(f"  {copurchased_item}: {count}")
-            
+
+
+def handle_bundles(csv_file, n):
+    """Handle the bundles command."""
+    # Load transactions and build graph    
+    transactions = load_transactions_from_csv(csv_file)
+    graph = build_graph_from_transactions(transactions)
+    
+    # Get top N bundles
+    bundles = get_top_n_bundles(graph, n)
+    
+    # Print results
+    print(f"Top {n} bundles:")
+    
+    if not bundles:
+        print("  No bundles found")
+    else:
+        for item_a, item_b, count in bundles:
+            print(f"  {item_a} + {item_b}: {count}")
+
+
+def handle_check(csv_file, item_a, item_b, threshold):
+    """Handle the check command."""
+    # Load transactions and build graph
+    transactions = load_transactions_from_csv(csv_file)
+    graph = build_graph_from_transactions(transactions)
+    
+    # Check if items are often co-purchased
+    result = are_often_copurchased(graph, item_a, item_b, threshold)
+    
+    # Get the actual count for informative output
+    count = graph.get_edge_weight(item_a, item_b)
+    
+    # Print results
+    if result:
+        print(f"Yes, '{item_a}' and '{item_b}' are often co-purchased (count: {count}, threshold: {threshold})")
+    else:
+        print(f"No, '{item_a}' and '{item_b}' are not often co-purchased (count: {count}, threshold: {threshold})")
+
 
 if __name__ == '__main__':
     main()
