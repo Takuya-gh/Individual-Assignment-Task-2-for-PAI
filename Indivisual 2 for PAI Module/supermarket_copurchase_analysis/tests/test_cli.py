@@ -119,5 +119,46 @@ class TestCLIQueryCommand(unittest.TestCase):
         finally:
             sys.stdout = old_stdout
 
+
+class TestHandleBundles(unittest.TestCase):
+    """Test suite for handle_bundles function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        self.sample_csv_path = os.path.join(test_dir, "sample_data.csv")
+
+    def test_handle_bundles_prints_top_n_bundles(self):
+        """Test that handle_bundles prints the top N bundles."""
+        from supermarket_copurchase_analysis.cli import handle_bundles
+        
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            handle_bundles(self.sample_csv_path, n=2)
+            output = sys.stdout.getvalue()
+            # Should contain "Top 2 bundles"
+            self.assertIn("Top 2 bundles", output)
+        finally:
+            sys.stdout = old_stdout
+        
+    def test_handle_bundles_shows_bundle_format(self):
+        """Test that bundles are shown in correct format."""
+        from supermarket_copurchase_analysis.cli import handle_bundles
+        
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            handle_bundles(self.sample_csv_path, n=3)
+            output = sys.stdout.getvalue()
+            # Should contain item pairs with format "item1 + item2: count"
+            self.assertIn("+", output)
+            self.assertIn(":", output)
+        finally:
+            sys.stdout = old_stdout
+
+
 if __name__ == '__main__':
     unittest.main()
