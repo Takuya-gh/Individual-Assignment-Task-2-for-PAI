@@ -42,5 +42,39 @@ class TestAddItem(unittest.TestCase):
         self.assertIsInstance(graph.adj["butter"], dict)
 
 
+class TestAddCoPurchase(unittest.TestCase):
+    """Test suite for add_co_purchase method."""
+
+    def test_add_edge_between_two_items_increments_count(self):
+        """Test adding an edge between two items creates bidirectional edge."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("bread", "milk")
+        self.assertIn("milk", graph.adj["bread"])
+        self.assertIn("bread", graph.adj["milk"])
+        self.assertEqual(graph.adj["bread"]["milk"], 1)
+        self.assertEqual(graph.adj["milk"]["bread"], 1)
+
+    def test_add_same_edge_multiple_times_increases_weight(self):
+        """Test adding the same edge multiple times increases the weight."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("bread", "butter")
+        graph.add_co_purchase("bread", "butter")
+        graph.add_co_purchase("bread", "butter")
+        self.assertEqual(graph.adj["bread"]["butter"], 3)
+        self.assertEqual(graph.adj["butter"]["bread"], 3)
+
+    def test_bidirectional_edge_undirected_graph(self):
+        """Test that edges are bidirectional (undirected graph)."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("eggs", "bacon")
+        self.assertEqual(graph.adj["eggs"]["bacon"], graph.adj["bacon"]["eggs"])
+
+    def test_self_loop_ignored(self):
+        """Test that self-loops (item with itself) are ignored."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("milk", "milk")
+        # Self-loops should not be added
+        self.assertNotIn("milk", graph.adj.get("milk", {}))
+
 if __name__ == '__main__':
     unittest.main()
