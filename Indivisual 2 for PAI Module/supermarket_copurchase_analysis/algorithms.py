@@ -36,11 +36,44 @@ def get_co_purchases_for_item(graph, item, min_count=1):
               sorted by count descending.
     """
     neighbors = graph.get_neighbors(item)
-    
+
     # Filter by min_count
     filtered = {k: v for k, v in neighbors.items() if v >= min_count}
-    
+
     # Sort by count descending
     sorted_items = sorted(filtered.items(), key=lambda x: x[1], reverse=True)
-    
+
     return dict(sorted_items)
+
+
+def get_top_n_bundles(graph, n):
+    """
+    Return the top N most frequently co-purchased item pairs (bundles).
+    Each pair appears only once (undirected).
+
+    Args:
+        graph (CoPurchaseGraph): The graph.
+        n (int): Number of top bundles to return.
+
+    Returns:
+        list: List of tuples (item_a, item_b, count), sorted by count descending.
+    """
+    bundles = []
+    seen = set()
+
+    # Iterate through all edges
+    for item_a in graph.adj:
+        for item_b, count in graph.adj[item_a].items():
+            # Create a canonical representation of the pair
+            pair = tuple(sorted([item_a, item_b]))
+
+            # Only add each pair once
+            if pair not in seen:
+                bundles.append((item_a, item_b, count))
+                seen.add(pair)
+
+    # Sort by count descending
+    bundles.sort(key=lambda x: x[2], reverse=True)
+
+    # Return top n
+    return bundles[:n]
