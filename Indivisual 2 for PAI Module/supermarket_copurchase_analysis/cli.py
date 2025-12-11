@@ -29,6 +29,11 @@ def main():
     query_parser.add_argument('--min-count', type=int, default=1, 
                              help='Minimum co-purchase count (default: 1)')
 
+    # Bundles command
+    bundles_parser = subparsers.add_parser('bundles', help='Find top N co-purchased bundles')
+    bundles_parser.add_argument('csv_file', help='Path to the CSV file')
+    bundles_parser.add_argument('n', type=int, help='Number of top bundles to return')
+
     # Parse arguments
     args = parser.parse_args()
     
@@ -37,6 +42,8 @@ def main():
         handle_load(args.csv_file)
     elif args.command == 'query':
         handle_query(args.csv_file, args.item, args.min_count)
+    elif args.command == 'bundles':
+        handle_bundles(args.csv_file, args.n)
     else:
         parser.print_help()
 
