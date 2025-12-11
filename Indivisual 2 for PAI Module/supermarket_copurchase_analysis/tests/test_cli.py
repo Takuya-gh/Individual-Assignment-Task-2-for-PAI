@@ -160,5 +160,62 @@ class TestHandleBundles(unittest.TestCase):
             sys.stdout = old_stdout
 
 
+class TestHandleCheck(unittest.TestCase):
+    """Test suite for handle_check function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        self.sample_csv_path = os.path.join(test_dir, "sample_data.csv")
+
+    def test_handle_check_prints_result_for_often_copurchased(self):
+        """Test that handle_check prints result for items often co-purchased."""
+        from supermarket_copurchase_analysis.cli import handle_check
+        
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            # bread and milk are co-purchased in sample data
+            handle_check(self.sample_csv_path, "bread", "milk", threshold=1)
+            output = sys.stdout.getvalue()
+            # Should contain both item names and some indication of result
+            self.assertIn("bread", output.lower())
+            self.assertIn("milk", output.lower())
+        finally:
+            sys.stdout = old_stdout
+    
+    def test_handle_check_shows_true_when_above_threshold(self):
+        """Test that handle_check indicates True when above threshold."""
+        from supermarket_copurchase_analysis.cli import handle_check
+        
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            handle_check(self.sample_csv_path, "bread", "milk", threshold=1)
+            output = sys.stdout.getvalue()
+            # Should indicate they ARE often co-purchased (Yes/True/are)
+            self.assertTrue("yes" in output.lower() or "true" in output.lower() or "are often" in output.lower())
+        finally:
+            sys.stdout = old_stdout
+    
+    def test_handle_check_shows_false_when_below_threshold(self):
+        """Test that handle_check indicates False when below threshold."""
+        from supermarket_copurchase_analysis.cli import handle_check
+        
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            # Set a very high threshold that won't be met
+            handle_check(self.sample_csv_path, "bread", "milk", threshold=999)
+            output = sys.stdout.getvalue()
+            # Should indicate they are NOT often co-purchased (No/False/are not)
+            self.assertTrue("no" in output.lower() or "false" in output.lower() or "are not" in output.lower())
+        finally:
+            sys.stdout = old_stdout
+
+
 if __name__ == '__main__':
     unittest.main()
