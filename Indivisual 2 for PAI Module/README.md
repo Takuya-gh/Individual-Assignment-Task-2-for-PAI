@@ -128,7 +128,9 @@ python -m supermarket_copurchase_analysis.cli load data/Supermarket_dataset_PAI.
 
 **Output:**
 ```
-Successfully loaded 9835 transactions from data/Supermarket_dataset_PAI.csv
+Successfully loaded 14963 transactions
+Graph contains 167 unique items
+Graph contains 6260 co-purchase relationships
 ```
 
 #### 2. Query Co-purchases for an Item
@@ -149,12 +151,14 @@ python -m supermarket_copurchase_analysis.cli query data/Supermarket_dataset_PAI
 
 **Sample Output:**
 ```
-Co-purchases for 'whole milk' (min count: 50):
+Co-purchases for 'whole milk' (min_count=50):
   other vegetables: 222
   rolls/buns: 209
   soda: 174
-  yogurt: 152
-  root vegetables: 117
+  yogurt: 167
+  sausage: 134
+  tropical fruit: 123
+  root vegetables: 113
   ...
 ```
 
@@ -172,8 +176,8 @@ Top 5 bundles:
   whole milk + other vegetables: 222
   rolls/buns + whole milk: 209
   whole milk + soda: 174
-  whole milk + yogurt: 152
-  whole milk + root vegetables: 117
+  whole milk + yogurt: 167
+  rolls/buns + other vegetables: 158
 ```
 
 #### 4. Check if Two Items Are Often Co-purchased
@@ -318,7 +322,7 @@ This indicates that **whole milk** is a central product in the store, frequently
 
 ## Author
 
-Developed as part of Individual Assignment 2 for the Programming and Algorithms (PAI) module.
+Developed as part of Individual Assignment Task 2 for the Programming for Artificial Intelligence module.
 
 ## License
 
