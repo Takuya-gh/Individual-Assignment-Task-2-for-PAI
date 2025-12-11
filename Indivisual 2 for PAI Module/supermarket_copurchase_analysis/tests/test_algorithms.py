@@ -231,5 +231,85 @@ class TestAreOftenCopurchased(unittest.TestCase):
         self.assertTrue(result1)
 
 
+class TestBfsRelatedItems(unittest.TestCase):
+    """Test suite for bfs_related_items function."""
+
+    def setUp(self):
+        """Set up a sample graph for testing."""
+        self.graph = CoPurchaseGraph()
+        # Create a connected component: bread-milk-butter-jam
+        self.graph.add_co_purchase("bread", "milk")
+        self.graph.add_co_purchase("milk", "butter")
+        self.graph.add_co_purchase("butter", "jam")
+        # Create another isolated component: tea-coffee
+        self.graph.add_co_purchase("tea", "coffee")
+        # Create an isolated node: dragonfruit
+        self.graph.add_item("dragonfruit")
+
+    def test_returns_list(self):
+        """Test that bfs_related_items returns a list."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "bread")
+        self.assertIsInstance(result, list)
+
+    def test_bfs_from_bread_finds_connected_component(self):
+        """Test BFS from bread finds all items in connected component."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "bread")
+        # Should find: milk, butter, jam (not bread itself)
+        self.assertEqual(len(result), 3)
+        self.assertIn("milk", result)
+        self.assertIn("butter", result)
+        self.assertIn("jam", result)
+        self.assertNotIn("bread", result)
+
+    def test_does_not_include_starting_item(self):
+        """Test that starting item is excluded from results."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "milk")
+        self.assertNotIn("milk", result)
+
+    def test_does_not_cross_components(self):
+        """Test that BFS doesn't cross to isolated components."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "tea")
+        # Should only find coffee, not bread/milk/butter/jam
+        self.assertEqual(len(result), 1)
+        self.assertIn("coffee", result)
+        self.assertNotIn("bread", result)
+        self.assertNotIn("milk", result)
+
+    def test_isolated_node_returns_empty_list(self):
+        """Test that isolated node with no edges returns empty list."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "dragonfruit")
+        self.assertEqual(result, [])
+
+    def test_non_existent_item_returns_empty_list(self):
+        """Test that non-existent item returns empty list."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        result = bfs_related_items(self.graph, "kiwi")
+        self.assertEqual(result, [])
+
+    def test_max_depth_limits_search(self):
+        """Test that max_depth parameter limits search depth."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        # From bread with max_depth=1, should only find direct neighbor (milk)
+        result = bfs_related_items(self.graph, "bread", max_depth=1)
+        self.assertEqual(len(result), 1)
+        self.assertIn("milk", result)
+        self.assertNotIn("butter", result)
+        self.assertNotIn("jam", result)
+
+    def test_max_depth_2_finds_second_level(self):
+        """Test that max_depth=2 finds items up to 2 edges away."""
+        from supermarket_copurchase_analysis.algorithms import bfs_related_items
+        # From bread with max_depth=2: milk (depth 1), butter (depth 2)
+        result = bfs_related_items(self.graph, "bread", max_depth=2)
+        self.assertEqual(len(result), 2)
+        self.assertIn("milk", result)
+        self.assertIn("butter", result)
+        self.assertNotIn("jam", result)
+
 if __name__ == '__main__':
     unittest.main()
