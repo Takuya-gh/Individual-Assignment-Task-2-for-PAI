@@ -117,5 +117,30 @@ class TestAddTransaction(unittest.TestCase):
         # Implementation will handle this
         self.assertIn("bread", graph.adj["milk"])
 
+
+class TestGetNeighbors(unittest.TestCase):
+    """Test suite for get_neighbors method."""
+
+    def test_get_neighbors_of_item_with_no_edges(self):
+        """Test getting neighbors of item with no edges returns empty dict."""
+        graph = CoPurchaseGraph()
+        graph.add_item("bread")
+        neighbors = graph.get_neighbors("bread")
+        self.assertEqual(neighbors, {})
+
+    def test_get_neighbors_of_item_with_edges(self):
+        """Test getting neighbors of item with edges."""
+        graph = CoPurchaseGraph()
+        graph.add_co_purchase("bread", "milk")
+        graph.add_co_purchase("bread", "butter")
+        neighbors = graph.get_neighbors("bread")
+        self.assertEqual(neighbors, {"milk": 1, "butter": 1})
+
+    def test_get_neighbors_of_non_existent_item(self):
+        """Test getting neighbors of non-existent item returns empty dict."""
+        graph = CoPurchaseGraph()
+        neighbors = graph.get_neighbors("dragonfruit")
+        self.assertEqual(neighbors, {})
+
 if __name__ == '__main__':
     unittest.main()
