@@ -29,3 +29,30 @@ class CoPurchaseGraph:
         """
         if item not in self.adj:
             self.adj[item] = {}
+
+
+    def add_co_purchase(self, item_a, item_b):
+        """
+        Add or update an undirected edge between item_a and item_b.
+        Increases their co-purchase count by 1.
+
+        Args:
+            item_a (str): First item name.
+            item_b (str): Second item name.
+        """
+        # Ignore self-loops
+        if item_a == item_b:
+            return
+
+        # Ensure both items exist as nodes
+        self.add_item(item_a)
+        self.add_item(item_b)
+
+        # Increment edge weight in both directions (undirected graph)
+        if item_b not in self.adj[item_a]:
+            self.adj[item_a][item_b] = 0
+        self.adj[item_a][item_b] += 1
+
+        if item_a not in self.adj[item_b]:
+            self.adj[item_b][item_a] = 0
+        self.adj[item_b][item_a] += 1
