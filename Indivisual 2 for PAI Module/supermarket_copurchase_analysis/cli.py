@@ -3,7 +3,8 @@ import argparse
 from supermarket_copurchase_analysis.data_loader import load_transactions_from_csv
 from supermarket_copurchase_analysis.algorithms import (
     build_graph_from_transactions,
-    get_co_purchases_for_item
+    get_co_purchases_for_item,
+    get_top_n_bundles
 )
 
 
@@ -74,7 +75,25 @@ def handle_query(csv_file, item, min_count):
     else:
         for copurchased_item, count in co_purchases.items():
             print(f"  {copurchased_item}: {count}")
-            
+
+
+def handle_bundles(csv_file, n):
+    """Handle the bundles command."""
+    # Load transactions and build graph    
+    transactions = load_transactions_from_csv(csv_file)
+    graph = build_graph_from_transactions(transactions)
+    
+    # Get top N bundles
+    bundles = get_top_n_bundles(graph, n)
+    
+    # Print results
+    print(f"Top {n} bundles:")
+    
+    if not bundles:
+        print("  No bundles found")
+    else:
+        for item_a, item_b, count in bundles:
+            print(f"  {item_a} + {item_b}: {count}")
 
 if __name__ == '__main__':
     main()
