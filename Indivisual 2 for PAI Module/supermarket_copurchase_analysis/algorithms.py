@@ -94,3 +94,45 @@ def are_often_copurchased(graph, item_a, item_b, threshold):
     """
     count = graph.get_edge_weight(item_a, item_b)
     return count >= threshold
+
+
+def bfs_related_items(graph, start_item, max_depth=None):
+    """
+    Use BFS to find all items related to start_item within max_depth.
+    Returns items reachable from start_item (excluding start_item itself).
+
+    Args:
+        graph (CoPurchaseGraph): The graph.
+        start_item (str): The starting item name.
+        max_depth (int, optional): Maximum depth to search. None means unlimited.
+
+    Returns:
+        list: List of related item names (excluding start_item).
+    """
+    from collections import deque
+
+    # Check if start_item exists
+    if start_item not in graph.adj:
+        return []
+
+    visited = set()
+    visited.add(start_item)
+    queue = deque([(start_item, 0)])  # (item, depth)
+    related = []
+
+    while queue:
+        current_item, depth = queue.popleft()
+
+        # Check if we've reached max_depth
+        if max_depth is not None and depth >= max_depth:
+            continue
+
+        # Explore neighbors
+        neighbors = graph.get_neighbors(current_item)
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                related.append(neighbor)
+                queue.append((neighbor, depth + 1))
+
+    return related
