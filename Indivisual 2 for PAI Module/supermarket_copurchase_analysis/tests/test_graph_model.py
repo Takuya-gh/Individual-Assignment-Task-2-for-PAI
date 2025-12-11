@@ -76,5 +76,46 @@ class TestAddCoPurchase(unittest.TestCase):
         # Self-loops should not be added
         self.assertNotIn("milk", graph.adj.get("milk", {}))
 
+
+class TestAddTransaction(unittest.TestCase):
+    """Test suite for add_transaction method."""
+
+    def test_empty_transaction(self):
+        """Test that empty transaction doesn't break."""
+        graph = CoPurchaseGraph()
+        graph.add_transaction([])
+        self.assertEqual(graph.adj, {})
+
+    def test_single_item_transaction(self):
+        """Test single-item transaction creates no edges."""
+        graph = CoPurchaseGraph()
+        graph.add_transaction(["bread"])
+        self.assertIn("bread", graph.adj)
+        self.assertEqual(graph.adj["bread"], {})
+
+    def test_two_item_transaction(self):
+        """Test two-item transaction creates one edge."""
+        graph = CoPurchaseGraph()
+        graph.add_transaction(["bread", "milk"])
+        self.assertEqual(graph.adj["bread"]["milk"], 1)
+        self.assertEqual(graph.adj["milk"]["bread"], 1)
+
+    def test_three_item_transaction(self):
+        """Test three-item transaction creates three edges (AB, AC, BC)."""
+        graph = CoPurchaseGraph()
+        graph.add_transaction(["bread", "milk", "butter"])
+        # Check all three pairs exist
+        self.assertEqual(graph.adj["bread"]["milk"], 1)
+        self.assertEqual(graph.adj["bread"]["butter"], 1)
+        self.assertEqual(graph.adj["milk"]["butter"], 1)
+
+    def test_duplicate_items_in_transaction(self):
+        """Test duplicate items in transaction are handled correctly."""
+        graph = CoPurchaseGraph()
+        graph.add_transaction(["milk", "bread", "milk"])
+        # Should only count unique pairs once per transaction
+        # Implementation will handle this
+        self.assertIn("bread", graph.adj["milk"])
+
 if __name__ == '__main__':
     unittest.main()
