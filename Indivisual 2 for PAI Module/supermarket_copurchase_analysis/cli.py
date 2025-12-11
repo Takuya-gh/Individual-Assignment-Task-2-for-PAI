@@ -4,7 +4,8 @@ from supermarket_copurchase_analysis.data_loader import load_transactions_from_c
 from supermarket_copurchase_analysis.algorithms import (
     build_graph_from_transactions,
     get_co_purchases_for_item,
-    get_top_n_bundles
+    get_top_n_bundles,
+    are_often_copurchased
 )
 
 
@@ -101,6 +102,26 @@ def handle_bundles(csv_file, n):
     else:
         for item_a, item_b, count in bundles:
             print(f"  {item_a} + {item_b}: {count}")
+
+
+def handle_check(csv_file, item_a, item_b, threshold):
+    """Handle the check command."""
+    # Load transactions and build graph
+    transactions = load_transactions_from_csv(csv_file)
+    graph = build_graph_from_transactions(transactions)
+    
+    # Check if items are often co-purchased
+    result = are_often_copurchased(graph, item_a, item_b, threshold)
+    
+    # Get the actual count for informative output
+    count = graph.get_edge_weight(item_a, item_b)
+    
+    # Print results
+    if result:
+        print(f"Yes, '{item_a}' and '{item_b}' are often co-purchased (count: {count}, threshold: {threshold})")
+    else:
+        print(f"No, '{item_a}' and '{item_b}' are not often co-purchased (count: {count}, threshold: {threshold})")
+
 
 if __name__ == '__main__':
     main()
